@@ -1,0 +1,56 @@
+{
+  "name": "generator-coffeegulpify",
+  "version": "0.0.1",
+  "description": "Coffeescript, with Browserify, Gulp, and Jade",
+  "license": "MIT",
+  "main": "app/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrandonMathis/coffeegulpify"
+  },
+  "author": {
+    "name": "Brandon Mathis",
+    "email": "BeMathis@gmail.com",
+    "url": "https://github.com/BrandonMathis"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "files": [
+    "app"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "generator",
+    "scaffold",
+    "frontend",
+    "front-end",
+    "component",
+    "es6",
+    "babeljs",
+    "sass",
+    "compass",
+    "jade",
+    "app",
+    "web-app"
+  ],
+  "dependencies": {
+    "chalk": "~1.0.0",
+    "gulp-load-plugins": "~0.10.0",
+    "mkdirp": "^0.5.0",
+    "semver": "^4.3.2",
+    "underscore.string": "^3.0.3",
+    "yeoman-generator": "~0.19.2",
+    "yosay": "^1.0.3"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "peerDependencies": {
+    "yo": ">=1.0.0",
+    "gulp": ">=3.5.0"
+  }
+}

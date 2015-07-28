@@ -1,0 +1,124 @@
+'use strict';
+var util = require('util');
+var path = require('path');
+var yeoman = require('yeoman-generator');
+var chalk = require('chalk');
+var path = require('path');
+var mkdirp = require('mkdirp');
+var yosay = require('yosay');
+var semver = require('semver');
+var _ = require('underscore.string');
+var self;
+
+var CoffeeGulpifyGenerator = yeoman.generators.Base.extend({
+  init: function () {
+    self = this;
+    this.pkg = require('../package.json');
+  },
+
+  askFor: function () {
+    var done = this.async();
+
+    this.log(yosay('Evening Sir! You are generating a Coffeescript app, with Browserify, Jade, and Gulp.'));
+
+    var prompts = [{
+      type: 'input',
+      name: 'projectName',
+      message: 'What\'s the name of the project?',
+      default: path.basename(process.cwd()),
+      filter: function (value) {
+        return _.camelize(_.slugify(_.humanize(value)));
+      }
+    }, {
+      type: 'confirm',
+      name: 'bowerOption',
+      message: 'Would you like to include Bower for dependency management?',
+      default: true
+    }, {
+      type: 'list',
+      name: 'styleOption',
+      message: 'What css preprocessor do you want to use?',
+      choices: [
+        { name: 'SCSS', value: 'scss' },
+        { name: 'Sass', value: 'sass' }
+      ]
+    }, {
+      type: 'list',
+      name: 'templateOption',
+      message: 'What would you like to use for templating?',
+      choices: [
+        { name: 'Jade', value: 'jade' },
+        { name: 'Pure HTML', value: 'html' }
+      ]
+    },{
+      type: 'checkbox',
+      name: 'bowerComponents',
+      message: 'Would you like to install any of the following?',
+      choices: [
+        { name: 'Underscore', value: 'underscore', checked: true },
+        { name: 'jQuery', value: 'jquery', checked: true }
+      ]
+    }, {
+      type: 'input',
+      name: 'projectVersion',
+      message: 'What\'s the version of the project?',
+      default: '0.0.1',
+      validate: function (value) {
+        if (value == semver.valid(value)) {
+          return true;
+        } else {
+          return "Please use a semantic version number (http://semver.org/)"
+        }
+      }
+    }];
+
+    this.prompt(prompts, function (props) {
+      this.projectName = _.slugify(_.camelize(props.projectName, true));
+      this.projectVersion = props.projectVersion;
+      this.bowerOption = props.bowerOption;
+      this.installUnderscore = props.bowerComponents.indexOf('underscore') !== -1;
+      this.installJquery= props.bowerComponents.indexOf('jquery') !== -1;
+      this.templateOption = props.templateOption;
+      this.styleOption = props.styleOption;
+
+      done();
+    }.bind(this));
+  },
+
+  app: function () {
+    mkdirp('src');
+    mkdirp('src/scripts');
+
+    this.template('_main.coffee', 'src/scripts/main.coffee');
+
+    this.template('_index.'+this.templateOption, 'src/index.'+this.templateOption);
+    this.template('_gulpfile.js', 'gulpfile.js');
+
+    mkdirp('src/images');
+
+    mkdirp('src/stylesheets');
+    this.template('_main.'+this.styleOption, 'src/stylesheets/main.'+this.styleOption);
+
+    this.template('_package.json', 'package.json');
+
+    if(this.bowerOption) {
+      this.template('_bower.json', 'bower.json');
+      this.copy('_bowerrc', '.bowerrc');
+    }
+    this.copy('gitignore', '.gitignore');
+    this.spawnCommand('git', ['init']);
+  },
+
+  projectfiles: function () {
+    this.copy('editorconfig', '.editorconfig');
+  },
+
+  end: function () {
+    this.installDependencies({
+      bower: this.bowerOption,
+      skipInstall: this.options['skip-install']
+    });
+  }
+});
+
+module.exports = CoffeeGulpifyGenerator;
